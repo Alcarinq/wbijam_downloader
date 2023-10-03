@@ -1,8 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 from urllib.parse import urlparse
+
 import requests
 from bs4 import BeautifulSoup
+
 from lib.utils import MAX_WORKERS
 
 
@@ -45,9 +47,9 @@ def process_one_player_link(player_link, player_name):
 
 
 def extract_player_links(player_name, episodes_links):
-    print("Extracting all wbijam player links ...")
+    print("Extracting all wbijam player links ... Depends on the number of episodes it could take a while ...")
     player_links = []
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         for result in executor.map(process_one_player_link, episodes_links, repeat(player_name)):
             player_links.append(result)
     return player_links

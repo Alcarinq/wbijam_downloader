@@ -1,4 +1,6 @@
-from datetime import time
+import os
+import time
+
 import requests
 from clint.textui import progress
 from lib.cda_parser import decode_link
@@ -8,15 +10,9 @@ SLEEP_TIME = 5
 MAX_WORKERS = 6
 
 
-def download_file(video_data, save_path, quality):
+def download_file(video_data, file_path, quality):
     download_link = f"https://{decode_link(video_data.get('video_file'))}.mp4"
-    download_mp4(download_link, f"{save_path}{video_data.get('title')}.mp4", quality)
-
-
-def retry_error(path, error_msg, retry_count):
-    print(f'Error when downloading {path}: {error_msg}, retrying... (Attempt {retry_count}/{MAX_RETRIES})')
-    retry_count += 1
-    time.sleep(SLEEP_TIME)
+    download_mp4(download_link, file_path, quality)
 
 
 def download_mp4(link, path, quality):
@@ -36,9 +32,19 @@ def download_mp4(link, path, quality):
                 print('File downloaded and saved in', path)
                 return
             else:
-                retry_error(path, response.status_code, retry_count)
+                print(f'Status code == {response.status_code} when downloading {path}, retrying... (Attempt {retry_count}/{MAX_RETRIES})')
+                retry_count += 1
+                time.sleep(SLEEP_TIME)
         except requests.exceptions.RequestException as e:
-            retry_error(path, str(e), retry_count)
+            print(f'Exception occurs when downloading {path}: {str(e)}, retrying... (Attempt {retry_count}/{MAX_RETRIES})')
+            retry_count += 1
+            time.sleep(SLEEP_TIME)
 
     print(f'Failed to download the file {link} after {MAX_RETRIES} attempts.')
     print('File not downloaded.')
+
+
+def check_if_file_exists(path):
+    if os.path.exists(path):
+        return True
+    return False

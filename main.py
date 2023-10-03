@@ -2,7 +2,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 from lib.cda_parser import create_video_id, get_top_quality, get_video_data
-from lib.utils import download_file, MAX_WORKERS
+from lib.utils import download_file, MAX_WORKERS, check_if_file_exists
 from lib.wbijam_parser import extract_all_episodes_links, extract_player_links
 
 
@@ -11,7 +11,11 @@ def process_one_link(player_link, save_path):
         video_id = create_video_id(player_link)
         quality = get_top_quality(video_id)
         video_data = get_video_data(video_id, quality)
-        download_file(video_data, save_path, quality)
+        file_path = f"{save_path}{video_data.get('title')}.mp4"
+        if not check_if_file_exists(file_path):
+            download_file(video_data, file_path, quality)
+        else:
+            print(f"File {file_path} already exists, skipping ...")
     except FileNotFoundError as ex:
         print(ex)
 
