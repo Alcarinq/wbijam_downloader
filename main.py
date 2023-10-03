@@ -11,10 +11,10 @@ from lib.wbijam_parser import extract_all_episodes_links, extract_player_links
 def process_one_link(player_link, save_path):
     try:
         video_id = create_video_id(player_link)
+        time.sleep(1)
         quality, title = get_top_quality_and_title(video_id)
         file_path = f"{save_path}{title}.mp4"
         if not check_if_file_exists(file_path):
-            time.sleep(1)
             video_file = get_video_file(video_id, quality)
             download_file(video_file, file_path, quality)
         else:

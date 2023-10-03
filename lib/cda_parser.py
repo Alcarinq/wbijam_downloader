@@ -60,7 +60,7 @@ def get_top_quality_and_title(video_id):
             print(f'Status code == {response.status_code} when downloading {video_id}, '
                   f'Retry-After == {retry_after} retrying after {retry_after}s ... (Attempt {retry_count}/{MAX_RETRIES})')
             retry_count += 1
-            time.sleep(int(response.headers["Retry-After"]))
+            time.sleep(int(retry_after))
         else:
             print(f'Status code == {response.status_code} when downloading {video_id}, retrying... (Attempt {retry_count}/{MAX_RETRIES})')
             retry_count += 1

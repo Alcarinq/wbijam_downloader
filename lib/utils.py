@@ -7,7 +7,7 @@ from clint.textui import progress
 
 MAX_RETRIES = 5
 SLEEP_TIME = 5
-MAX_WORKERS = 4
+MAX_WORKERS = 8
 
 
 def decode_link(link):
