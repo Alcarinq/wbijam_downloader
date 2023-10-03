@@ -1,3 +1,4 @@
+import sys
 from datetime import time
 
 import requests
@@ -13,6 +14,12 @@ MAX_WORKERS = 6
 def download_file(video_data, save_path, quality):
     download_link = f"https://{decode_link(video_data.get('video_file'))}.mp4"
     download_mp4(download_link, f"{save_path}{video_data.get('title')}.mp4", quality)
+
+
+def retry_error(path, error_msg, retry_count):
+    print(f'Error when downloading {path}: {error_msg}, retrying... (Attempt {retry_count}/{MAX_RETRIES})')
+    retry_count += 1
+    time.sleep(SLEEP_TIME)
 
 
 def download_mp4(link, path, quality):
@@ -32,15 +39,9 @@ def download_mp4(link, path, quality):
                 print('File downloaded and saved in', path)
                 return
             else:
-                print('Error:', response.status_code)
-                retry_count += 1
-                print(f'Retrying... (Attempt {retry_count}/{MAX_RETRIES})')
-                time.sleep(SLEEP_TIME)
+                retry_error(path, response.status_code, retry_count)
         except requests.exceptions.RequestException as e:
-            print('Error:', str(e))
-            retry_count += 1
-            print(f'Retrying... (Attempt {retry_count}/{MAX_RETRIES})')
-            time.sleep(SLEEP_TIME)
+            retry_error(path, str(e), retry_count)
 
     print(f'Failed to download the file {link} after {MAX_RETRIES} attempts.')
     print('File not downloaded.')
