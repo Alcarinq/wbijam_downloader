@@ -7,7 +7,7 @@ from clint.textui import progress
 
 MAX_RETRIES = 5
 SLEEP_TIME = 5
-MAX_WORKERS = 6
+MAX_WORKERS = 4
 
 
 def decode_link(link):
@@ -32,8 +32,8 @@ def decode_link(link):
     return link
 
 
-def download_file(video_data, file_path, quality):
-    download_link = f"https://{decode_link(video_data.get('video_file'))}.mp4"
+def download_file(video_file, file_path, quality):
+    download_link = f"https://{decode_link(video_file)}.mp4"
     download_mp4(download_link, file_path, quality)
 
 
