@@ -1,16 +1,30 @@
 import json
-from urllib.parse import unquote
+import time
+
 import requests
 from bs4 import BeautifulSoup
+from random_user_agent.params import SoftwareName, OperatingSystem
+from random_user_agent.user_agent import UserAgent
 
-HEADERS = {
-    "Connection": "keep-alive",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-    'accept-language': 'pl-PL,pl;q=0.9',
-    'cache-control': 'no-cache',
-    'pragma': 'no-cache',
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36 OPR/80.0.4170.63",
-}
+from lib.utils import SLEEP_TIME
+
+
+def generate_user_headers():
+    software_names = [SoftwareName.CHROME.value]
+    operating_systems = [OperatingSystem.WINDOWS.value, OperatingSystem.LINUX.value]
+    user_agent_rotator = UserAgent(software_names=software_names, operating_systems=operating_systems, limit=100)
+    user_agent = user_agent_rotator.get_random_user_agent()
+
+    headers = {
+        "Connection": "keep-alive",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        'accept-language': 'pl-PL,pl;q=0.9',
+        'cache-control': 'no-cache',
+        'pragma': 'no-cache',
+        "User-Agent": user_agent,
+    }
+
+    return headers
 
 
 def create_video_id(link):
@@ -29,6 +43,9 @@ def get_top_quality(video_id):
     response = requests.get(f"https://www.cda.pl/video/{video_id}")
     if response.status_code != 200:
         print("Error:", response.status_code)
+        if response.status_code == 429:
+            print(f"Need to use timeout due to high amount of requests, waiting {SLEEP_TIME}s")
+            time.sleep(SLEEP_TIME)
         return None
     data = response.text
     parser = BeautifulSoup(data, 'html.parser')
@@ -43,9 +60,12 @@ def get_top_quality(video_id):
 
 
 def get_video_data(video_id, quality):
-    response = requests.get(f"https://ebd.cda.pl/1920x1080/{video_id}?wersja={quality}", headers=HEADERS)
+    response = requests.get(f"https://ebd.cda.pl/1920x1080/{video_id}?wersja={quality}", headers=generate_user_headers())
     if response.status_code != 200:
         print("Error:", response.status_code)
+        if response.status_code == 429:
+            print(f"Need to use timeout due to high amount of requests, waiting {SLEEP_TIME}s")
+            time.sleep(SLEEP_TIME)
         return None
 
     data = response.text
@@ -60,25 +80,3 @@ def get_video_data(video_id, quality):
         'video_file': player_data['video']['file'],
         'title': player_data['video']['title'].replace("kawa%C5%82ek", "one_piece")
     }
-
-
-def decode_link(link):
-    quotes = ["_XDDD", "_CDA", "_ADC", "_CXD", "_QWE", "_Q5", "_IKSDE"]
-
-    for e in quotes:
-        link = unquote(link.replace(e, ""))
-
-    b = []
-    for i in range(len(link)):
-        f = ord(link[i])
-        if 33 <= f <= 126:
-            b.append(chr(33 + ((f + 14) % 94)))
-        else:
-            b.append(chr(f))
-
-    link = ''.join(b)
-    link = link.replace(".cda.mp4", "")
-    link = link.replace(".2cda.pl", ".cda.pl")
-    link = link.replace(".3cda.pl", ".cda.pl")
-
-    return link

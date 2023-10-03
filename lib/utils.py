@@ -1,13 +1,35 @@
 import os
 import time
+from urllib.parse import unquote
 
 import requests
 from clint.textui import progress
-from lib.cda_parser import decode_link
 
 MAX_RETRIES = 5
 SLEEP_TIME = 5
 MAX_WORKERS = 6
+
+
+def decode_link(link):
+    quotes = ["_XDDD", "_CDA", "_ADC", "_CXD", "_QWE", "_Q5", "_IKSDE"]
+
+    for e in quotes:
+        link = unquote(link.replace(e, ""))
+
+    b = []
+    for i in range(len(link)):
+        f = ord(link[i])
+        if 33 <= f <= 126:
+            b.append(chr(33 + ((f + 14) % 94)))
+        else:
+            b.append(chr(f))
+
+    link = ''.join(b)
+    link = link.replace(".cda.mp4", "")
+    link = link.replace(".2cda.pl", ".cda.pl")
+    link = link.replace(".3cda.pl", ".cda.pl")
+
+    return link
 
 
 def download_file(video_data, file_path, quality):

@@ -49,7 +49,8 @@ def process_one_player_link(player_link, player_name):
 def extract_player_links(player_name, episodes_links):
     print("Extracting all wbijam player links ... Depends on the number of episodes it could take a while ...")
     player_links = []
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS/2) as executor:
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS*2) as executor:
         for result in executor.map(process_one_player_link, episodes_links, repeat(player_name)):
+            print(f'adding {result}')
             player_links.append(result)
     return player_links
