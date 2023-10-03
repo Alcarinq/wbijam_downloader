@@ -1,7 +1,6 @@
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
-
 from lib.cda_parser import create_video_id, get_top_quality, get_video_data
 from lib.utils import download_file, MAX_WORKERS
 from lib.wbijam_parser import extract_all_episodes_links, extract_player_links

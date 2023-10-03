@@ -1,23 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 from urllib.parse import urlparse
-
 import requests
 from bs4 import BeautifulSoup
-
-
-# def extract_all_wbijam_categories(main_url):
-#     category_links = []
-#     response = requests.get(main_url)
-#
-#     # get all categorues
-#     if response.status_code == 200:
-#         soup = BeautifulSoup(response.content, "html.parser")
-#         for link in soup.find_all('a', class_='sub_inner_link'):
-#             if link.parent.next['src'] == 'images/tv_info.gif' and '-' not in link['href']:
-#                 category_links.append(f"{main_url}{link['href']}")
-#
-#     return category_links
 from lib.utils import MAX_WORKERS
 
 

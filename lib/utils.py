@@ -1,9 +1,6 @@
-import sys
 from datetime import time
-
 import requests
 from clint.textui import progress
-
 from lib.cda_parser import decode_link
 
 MAX_RETRIES = 5
